@@ -1,0 +1,5 @@
+{"id": "email-001", "email_text": "Hi, can you check how much customer ABC-CORP owes us?"}
+{"id": "email-002", "email_text": "I need to verify if payment PAY-12345 went through for customer XYZ-INC."}
+{"id": "email-003", "email_text": "What's the current balance for account number 78901?"}
+{"id": "email-004", "email_text": "Please process a refund of $500 for invoice INV-999 to customer DEF-LLC and update their account balance."}
+{"id": "email-005", "email_text": "Can you tell me the payment history for customer GHI-CORP over the last 6 months?"}
