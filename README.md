@@ -159,10 +159,7 @@ If you use this project in an academic work, please cite as:
   title = {Fast and Slow LLMs for Email-to-API Mapping},
   author = {Daniel Clas, Aida Rostami},
   year = {2025},
-  url = {https://github.com/danielclas/llm-agents-project}
+  url = {https://github.com/danielclas/fast-and-slow-llms}
 }
 ```
 
----
-
-## License
