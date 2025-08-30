@@ -46,7 +46,7 @@ Consider factors like:
 
 
 # ---- router ----
-class LLMRouter:
+class LLMAgentsRouter:
     """
     LLM-based email router that intelligently routes emails to appropriate agents.
     
@@ -76,3 +76,35 @@ class LLMRouter:
         user = ROUTER_USER_TEMPLATE.format(email_text=email_text)
         return self.llm.complete(ROUTER_SYSTEM_PROMPT, user, RouteDecision)
      
+class SingleAgentRouter:
+    """
+    Baseline router that always routes to a specific agent.
+    Used for measuring individual agent performance without intelligent routing.
+    """
+    
+    def __init__(self, agent: Route):
+        """
+        Initialize router to always route to the specified agent.
+        
+        Args:
+            agent: Either "S1" or "S2" - the agent to always route to
+        """
+        if agent not in ["S1", "S2"]:
+            raise ValueError(f"Agent must be 'S1' or 'S2', got '{agent}'")
+        self.agent = agent
+    
+    def decide(self, email_text: str) -> RouteDecision:
+        """
+        Always return the same agent, regardless of email content.
+        
+        Args:
+            email_text: The email content (ignored for baseline routing)
+            
+        Returns:
+            RouteDecision: Hardcoded decision for the specified agent
+        """
+        return RouteDecision(
+            route=self.agent,
+            reasons=[f"Baseline routing: always using agent {self.agent}"],
+            confidence=1.0
+        )

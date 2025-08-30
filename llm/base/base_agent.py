@@ -5,7 +5,7 @@ import json
 T = TypeVar("T", bound=BaseModel)
 
 class APIAction(BaseModel):
-    """Simple, clean API action specification."""
+    """API action specification."""
     endpoint: str = Field(..., description="API endpoint path")
     method: Literal["GET", "POST", "PUT", "DELETE"] = Field(..., description="HTTP method")
     params: str = Field(..., description="Query parameters as query string")
@@ -24,13 +24,18 @@ class BaseAgent:
     """
     Generic email processing agent: defines a consistent .run(email_text) API.
     Analyzes emails and determines appropriate API action sequences.
-    Subclasses set: self.model_name (optional), self.system_prompt, self.user_template.
     """
-    def __init__(self, llm: LLMClient):
+    def __init__(self, llm: LLMClient, api_context: Optional[str] = None):
         self.llm = llm
         self.model_name = getattr(self, "model_name", None)
-        self.system_prompt = getattr(self, "system_prompt")
+        base_system_prompt = getattr(self, "system_prompt")
         self.user_template = getattr(self, "user_template")
+        
+        # Include API context in system prompt if provided
+        if api_context:
+            self.system_prompt = f"{base_system_prompt}\n\n{api_context}"
+        else:
+            self.system_prompt = base_system_prompt
 
     def run(self, email_text: str) -> str:
         """

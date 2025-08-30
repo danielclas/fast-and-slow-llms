@@ -1,58 +1,168 @@
-# Python Project
+# Fast and Slow LLMs for Email-to-API Mapping
 
-## Setup Instructions
+A lightweight framework for **routing business emails** to the right LLM agent and translating them into **structured API action plans**. The system uses a **router** and two **agents** that output Pydantic-validated JSON describing which API endpoints to call, with reasoning and confidence.
 
-### Prerequisites
-- Python 3.8+ installed on your system
-- pip (comes with Python)
 
-### Installation & Setup
+---
 
-1. **Clone the repository** (or download the project)
-   ```bash
-   git clone <your-repo-url>
-   cd <project-directory>
-   ```
+## Repo Structure
 
-2. **Create a virtual environment** (equivalent to node_modules)
-   ```bash
-   python -m venv venv
-   ```
-
-3. **Activate the virtual environment**
-   
-   On macOS/Linux:
-   ```bash
-   source venv/bin/activate
-   ```
-   
-   On Windows:
-   ```bash
-   venv\Scripts\activate
-   ```
-
-4. **Install dependencies** (equivalent to `npm install`)
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-5. **Run the project**
-   ```bash
-   python main.py
-   ```
-
-### Development
-
-- **Add new dependencies**: Add them to `requirements.txt` and run `pip install -r requirements.txt`
-- **Update requirements**: After installing new packages, run `pip freeze > requirements.txt`
-- **Deactivate virtual environment**: Run `deactivate`
-
-### Project Structure
 ```
-project/
-├── venv/                 # Virtual environment (like node_modules)
-├── requirements.txt      # Dependencies (like package.json)
-├── main.py              # Main entry point
-├── README.md            # This file
-└── .gitignore           # Git ignore file
-``` 
+.
+├── api_spec
+│   ├── accounts-payable.openapi.yaml
+│   ├── accounts-receivable.openapi.yaml
+│   ├── general-ledger.openapi.yaml
+│   └── open_api_spec.py
+├── dataset
+│   ├── dataset_inputs_150.jsonl
+│   └── dataset_inputs_smoke_15.jsonl
+├── examples
+│   ├── api_action_examples.py
+│   └── output_example.json
+├── index.html
+├── io_utils.py
+├── llm
+│   ├── base
+│   │   └── base_agent.py
+│   ├── client.py
+│   ├── controller
+│   │   └── controller.py
+│   ├── llm_router.py
+│   ├── s1
+│   │   └── s1_agent.py
+│   ├── s2
+│   │   └── s2_agent.py
+│   └── tools
+│       ├── __init__.py
+│       └── openapi_loader.py
+├── paper
+│   └── ACL_2023_Proceedings_Template.pdf
+├── README.md
+├── requirements.txt
+├── run.bash
+├── runner.py
+└── runs
+    ├── baseline_s1_20250823_124721
+    │   └── merged.jsonl
+    └── test_run_20250823_114854
+        ├── merged.graded.jsonl
+        └── merged.jsonl
+
+```
+
+---
+
+## Installation
+
+### 1) Python & deps
+```bash
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+### 2) Environment Variables
+You need to set your OpenAI API key as an environment variable:
+
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+```
+
+Or create a `.env` file in the project root:
+```
+OPENAI_API_KEY=your_api_key_here
+```
+
+---
+
+## Usage
+
+### Running the System
+After installation, you can run the system using:
+
+```bash
+python runner.py
+```
+
+This will process emails from the dataset and save results to the `runs/` directory with timestamped folders.
+
+### Visualizing Results
+You can use the built-in web-based viewer to analyze and grade the results:
+
+1. **Open the viewer**: Open `index.html` in your web browser
+2. **Load results**: Click to select any `merged.jsonl` file from the `runs/` directory
+3. **Analyze**: View statistics, filter results, and examine individual email processing details
+4. **Grade results**: Mark responses as correct/incorrect and download graded files
+
+The viewer provides:
+- Run metadata and summary statistics
+- Filtering by route, confidence, and text search
+- Detailed view of each email's processing pipeline
+- Manual grading interface with downloadable results
+
+---
+
+## How it Works
+
+### Routing
+`llm/llm_router.py` uses a system prompt and JSON-schema constrained decoding to produce a **RouteDecision**:
+
+```jsonc
+{
+  "route": "S1" | "S2",
+  "reasons": ["..."],
+  "confidence": 0.0 <= x <= 1.0
+}
+```
+
+The `Controller` (`llm/controller/controller.py`) is a thin facade that calls the router’s `decide()` method.
+
+### Agents
+Both `AgentS1` and `AgentS2` extend `BaseAgent` (`llm/base/base_agent.py`). They differ only in **prompting** and **intended use**:
+
+- **S1**: fast / single-step, unambiguous requests.
+- **S2**: slower / multi-step, ambiguous or interdependent actions.
+
+Agents return an **AgentResponse** with an ordered **action_sequence** of **APIAction** items, plus `reasoning` and `confidence`.
+
+**Schema (simplified):**
+```jsonc
+{
+  "action_sequence": [
+    {
+      "endpoint": "accounts-receivable/customer",
+      "method": "GET" | "POST" | "PUT" | "DELETE",
+      "params": "...",   // query string or JSON-serialised dict
+      "payload": "..."   // JSON-serialised dict or null
+    }
+  ],
+  "reasoning": "...",
+  "confidence": 0.0 <= x <= 1.0
+}
+```
+
+
+
+### LLM client
+`llm/client.py` wraps OpenAI’s API and enables **JSON schema–constrained** outputs. If the model returns invalid JSON, a **RuntimeError** is raised; the caller (e.g., the runner) records the error and continues.
+
+---
+
+
+## Citation
+
+If you use this project in an academic work, please cite as:
+
+```bibtex
+@software{llm_agents_project,
+  title = {Fast and Slow LLMs for Email-to-API Mapping},
+  author = {Daniel Clas, Aida Rostami},
+  year = {2025},
+  url = {https://github.com/danielclas/llm-agents-project}
+}
+```
+
+---
+
+## License

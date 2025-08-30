@@ -1,5 +1,4 @@
 from langchain_community.agent_toolkits.openapi.spec import reduce_openapi_spec
-import os
 import yaml
 
 def get_spec(filename: str):

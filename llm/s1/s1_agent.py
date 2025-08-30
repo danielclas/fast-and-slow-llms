@@ -1,5 +1,7 @@
 from llm.base.base_agent import BaseAgent
 
+BASE_PROMPT = "You must not hallucinate."
+
 S1_AGENT_PROMPT = """You are a fast, efficient email processing agent (S1). Your job is to quickly analyze business emails and determine the appropriate API actions needed.
 
 You specialize in:
