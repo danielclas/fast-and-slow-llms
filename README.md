@@ -17,9 +17,6 @@ A lightweight framework for **routing business emails** to the right LLM agent a
 ├── dataset
 │   ├── dataset_inputs_150.jsonl
 │   └── dataset_inputs_smoke_15.jsonl
-├── examples
-│   ├── api_action_examples.py
-│   └── output_example.json
 ├── index.html
 ├── io_utils.py
 ├── llm
@@ -36,18 +33,32 @@ A lightweight framework for **routing business emails** to the right LLM agent a
 │   └── tools
 │       ├── __init__.py
 │       └── openapi_loader.py
-├── paper
-│   └── ACL_2023_Proceedings_Template.pdf
+├── Paper
+│   └── Fast and Slow LLMs for email to API mapping.pdf
+├── Presentation materials
+│   ├── Fast and slow LLMs.pdf
+│   └── Fast and slow LLMs.pptx
 ├── README.md
 ├── requirements.txt
 ├── run.bash
 ├── runner.py
 └── runs
     ├── baseline_s1_20250823_124721
+    │   ├── merged.graded.jsonl
     │   └── merged.jsonl
-    └── test_run_20250823_114854
+    ├── baseline_s2_20250824_180009
+    │   ├── merged.graded.jsonl
+    │   └── merged.jsonl
+    ├── intelligent_routing_0.3_confidence_20250824_213716
+    │   ├── merged.graded.jsonl
+    │   └── merged.jsonl
+    ├── intelligent_routing_0.5_confidence_20250825_135053
+    │   ├── merged.graded.jsonl
+    │   └── merged.jsonl
+    └── intelligent_routing_0.7_confidence_20250825_143605
         ├── merged.graded.jsonl
         └── merged.jsonl
+
 
 ```
 
